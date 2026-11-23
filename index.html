@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Festividades de Huánuco</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#FFF7ED;padding-bottom:90px}
+header{background:linear-gradient(135deg,#7C3AED,#E8A58D);color:white;padding:20px 16px 24px;border-radius:0 0 24px 24px}
+header h1{font-size:24px}
+.search{background:white;border-radius:30px;padding:11px 14px;display:flex;gap:8px;margin:14px 16px 0}
+.search input{border:none;outline:none;flex:1}
+.card{background:white;border-radius:20px;padding:16px;margin:14px 16px 0;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.card img{width:100%;height:170px;object-fit:cover;border-radius:14px}
+.btn{width:100%;padding:13px;border:none;border-radius:13px;font-weight:800;cursor:pointer}
+.btn-mor{background:#7C3AED;color:white}
+.btn-nar{background:#F59E0B;color:white}
+.btn-bla{background:white;border:1px solid #ddd}
+.badge{background:#FEF3C7;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;margin:8px 0}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 16px 0}
+.plan{border-radius:20px;padding:16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.plan-plus{background:linear-gradient(135deg,#7C3AED,#F59E0B);color:white;cursor:pointer}
+select,input{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;margin-top:8px;outline:none}
+.ruleta{font-size:70px;text-align:center}
+.girando{animation:spin .5s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;z-index:99}
+.modal.activo{display:flex}
+.modal-box{background:white;width:100%;max-height:92vh;overflow:auto;border-radius:24px 24px 0 0;padding:20px}
+.tabs{display:flex;gap:8px;margin-top:12px}
+.tab{flex:1;padding:12px;border-radius:12px;border:1px solid #ddd;background:white;font-weight:800;cursor:pointer;text-align:center}
+.tab.activo{background:#7C3AED;color:white;border-color:#7C3AED}
+.paso{display:flex;gap:12px;margin-bottom:12px;text-align:left}
+.num{background:#FFD400;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.subir{border:2px dashed #ccc;border-radius:14px;padding:16px;text-align:center;margin-top:10px;cursor:pointer}
+.subir img{max-width:100%;border-radius:12px;margin-top:10px;display:none}
+.nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:12px;box-shadow:0 -2px 10px rgba(0,0,0,.08)}
+.nav div{text-align:center;font-size:12px;cursor:pointer}
+.oculto{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div><h1>Festividades de Huánuco 🎉</h1><p id="saludo">Hola, bienvenido</p></div>
+    <div style="background:white;color:#7C3AED;padding:8px 12px;border-radius:20px;font-weight:800" onclick="window.location.href='login.html'">👤 Entrar</div>
+  </div>
+</header>
+
+<div class="search">🔍 <input id="buscador" placeholder="Buscar lugar, fiesta..." oninput="buscar()"></div>
+
+<!-- PLANES -->
+<div class="plans">
+  <div class="plan" style="background:white">
+    <div style="font-size:28px">👤</div><h3>Usuario</h3><p style="font-size:13px;color:#666">Gratis</p>
+    <p style="font-size:12px;margin:8px 0">Ver fiestas<br>Comentar<br>Guardar favoritos</p>
+    <div style="background:#E5E7EB;padding:10px;border-radius:12px;font-weight:700">Tu plan actual</div>
+  </div>
+  <div class="plan plan-plus" onclick="abrirPlus()">
+    <div style="font-size:28px">⭐</div><h3>Usuario Plus</h3><p style="font-size:13px">S/ 3.99 / mes</p>
+    <p style="font-size:12px;margin:8px 0">Sin anuncios<br>Entradas antes<br>Insignia dorada ⭐</p>
+    <div style="background:white;color:#7C3AED;padding:10px;border-radius:12px;font-weight:800">¡Hazte Plus!</div>
+  </div>
+</div>
+
+<!-- MINIJUEGO -->
+<div class="card" style="text-align:center;background:linear-gradient(135deg,#FFF7ED,#EDE9FE)">
+  <h3>🎲 ¿No sabes a dónde ir?</h3>
+  <p style="font-size:13px;color:#666">Que el juego elija por ti según tu ciudad</p>
+  <select id="ciudad">
+    <option value="Huanuco">Huánuco</option>
+    <option value="Tingo">Tingo María</option>
+    <option value="Amarilis">Amarilis</option>
+    <option value="Pillco">Pillco Marca</option>
+    <option value="Otra">Otra ciudad</option>
+  </select>
+  <div class="ruleta" id="emoji">🎲</div>
+  <button class="btn btn-mor" onclick="jugar()">🎲 ¡ELIGE POR MÍ!</button>
+  <button onclick="usarUbicacion()" style="background:none;border:none;color:#7C3AED;font-weight:700;margin-top:10px;cursor:pointer">📍 Usar mi ubicación actual</button>
+  <div id="resultado" class="oculto" style="margin-top:12px;text-align:left">
+    <span class="badge" id="resCiudad">Huánuco</span>
+    <h3 id="resNombre"></h3>
+    <img id="resFoto" style="height:150px">
+    <p id="resDesc" style="font-size:13px;color:#666"></p>
+    <p id="resDato" style="font-size:13px;font-weight:700;margin-top:6px"></p>
+    <button class="btn btn-bla" onclick="verMapaActual()" style="margin-top:10px">📍 Ver en Google Maps</button>
+    <button class="btn btn-nar" onclick="jugar()" style="margin-top:8px">🔄 ¡Otra vez!</button>
+  </div>
+</div>
+
+<!-- LUGARES -->
+<h2 style="margin:18px 16px 0">📍 Lugares y Fiestas</h2>
+<div id="listaLugares"></div>
+
+<!-- MODAL PLUS / PAGO -->
+<div class="modal" id="modalPlus">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between"><h2>⭐ Hazte Usuario Plus</h2><button onclick="cerrarPlus()" style="border:none;background:#eee;padding:8px 12px;border-radius:50%;cursor:pointer">X</button></div>
+    <div style="background:linear-gradient(135deg,#7C3AED,#F59E0B);color:white;border-radius:18px;padding:16px;text-align:center;margin-top:12px">
+      <div style="font-size:36px;font-weight:900">S/ 3.99 <span style="font-size:14px;font-weight:400">/ mes</span></div>
+      <p style="font-size:13px">✅ Sin anuncios &nbsp; ✅ Entradas antes &nbsp; ✅ Insignia dorada ⭐<br>✅ Descuentos en tours</p>
+    </div>
+
+    <h3 style="margin-top:14px">¿Cómo quieres pagar?</h3>
+    <div class="tabs">
+      <div class="tab activo" id="tabYape" onclick="cambiarPago('yape')">💜 Yape / Plin</div>
+      <div class="tab" id="tabBanco" onclick="cambiarPago('banco')">🏦 Por Banco / CCI</div>
+    </div>
+
+    <!-- PASOS YAPE -->
+    <div id="pasosYape">
+      <div style="background:#F3E8FF;border-radius:16px;padding:14px;margin-top:12px;text-align:center">
+        <div style="font-size:13px;color:#666">Yapea a este número:</div>
+        <div style="font-size:26px;font-weight:800">+51 939 753 410</div>
+        <button onclick="copiar('939753410')" style="background:#7C3AED;color:white;border:none;padding:9px 16px;border-radius:30px;font-weight:700;margin-top:8px;cursor:pointer">📋 Copiar número</button>
+      </div>
+      <h4 style="margin:14px 0 10px">Pasos para pagar con Yape / Plin:</h4>
+      <div class="paso"><div class="num">1</div><div><b>Abre Yape o Plin</b><br><span>Entra a tu app Yape o Plin y elige "Yapear" o "Transferir"</span></div></div>
+      <div class="paso"><div class="num">2</div><div><b>Escribe el número</b><br><span>Escribe el número de celular: <b>+51 939 753 410</b></span></div></div>
+      <div class="paso"><div class="num">3</div><div><b>Escribe el monto</b><br><span>Escribe el monto a enviar: <b>S/ 3.99</b></span></div></div>
+      <div class="paso"><div class="num">4</div><div><b>En motivo escribe qué pagas</b><br><span>En motivo / mensaje escribe: <b>"Plus - tu usuario"</b> Ej: Plus - franki</span></div></div>
+      <div class="paso"><div class="num">5</div><div><b>Envía y toma captura</b><br><span>Envía el pago y toma captura al comprobante</span></div></div>
+    </div>
+
+    <!-- PASOS BANCO -->
+    <div id="pasosBanco" class="oculto">
+      <div style="background:#FFFBEB;border-radius:16px;padding:14px;margin-top:12px;text-align:center">
+        <div style="font-size:13px;color:#666">Transfiere a esta cuenta:</div>
+        <div style="font-size:15px;margin-top:6px">Banco destino: <b>DALE</b></div>
+        <div style="font-size:18px;font-weight:800;margin:4px 0">CCI: 9220 0300 0003 8491 1194</div>
+        <button onclick="copiar('92200300000384911194')" style="background:#F59E0B;color:white;border:none;padding:9px 16px;border-radius:30px;font-weight:700;margin-top:6px;cursor:pointer">📋 Copiar CCI</button>
+      </div>
+      <h4 style="margin:14px 0 10px">Pasos para pagar por Banco:</h4>
+      <div class="paso"><div class="num">1</div><div><b>Abre la app de tu banco</b><br><span>Entra a la app de tu banco y elige "Transferir" o "Enviar dinero"</span></div></div>
+      <div class="paso"><div class="num">2</div><div><b>Elige a otro banco</b><br><span>Selecciona la opción <b>"A otro banco"</b> o <b>"Transferencia interbancaria"</b></span></div></div>
+      <div class="paso"><div class="num">3</div><div><b>Escribe el CCI</b><br><span>Escribe el CCI: <b>92200300000384911194</b> y el banco destino: <b>DALE</b></span></div></div>
+      <div class="paso"><div class="num">4</div><div><b>Escribe el monto</b><br><span>Escribe el monto a enviar: <b>S/ 3.99</b></span></div></div>
+      <div class="paso"><div class="num">5</div><div><b>Revisa y envía</b><br><span>Revisa que los datos estén bien, envía y toma captura al comprobante</span></div></div>
+    </div>
+
+    <label>Tu usuario</label><input id="usuarioPlus" placeholder="Ej: franki">
+    <label>Foto del comprobante</label>
+    <div class="subir" onclick="document.getElementById('foto').click()">📷 Toca aquí para subir tu captura<img id="preview"><input type="file" id="foto" accept="image/*" hidden onchange="verFoto(this)"></div>
+    <button class="btn btn-mor" onclick="enviarPlus()" style="margin-top:14px">Enviar y ser Plus ⭐</button>
+    <div id="okPlus" style="background:#D1FAE5;color:#065F46;padding:12px;border-radius:12px;text-align:center;display:none;margin-top:10px;font-weight:700">¡Enviado! Te activamos tu Plus pronto ✅</div>
+  </div>
+</div>
+
+<div class="nav">
+  <div onclick="window.scrollTo({top:0,behavior:'smooth'})">🏠<br>Inicio</div>
+  <div onclick="document.getElementById('ciudad').scrollIntoView({behavior:'smooth'})">🎲<br>Juego</div>
+  <div onclick="abrirPlus()">⭐<br>Plus</div>
+  <div onclick="window.location.href='login.html'">👤<br>Cuenta</div>
+</div>
+
+<script>
+const lugaresData=[
+  {nombre:'Plaza de Armas de Huánuco',ciudad:'Huanuco',desc:'Centro de Huánuco, fiestas, danzas y comida.',dato:'💰 Gratis | ⏰ Todo el día',foto:'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=800',emoji:'🏛️'},
+  {nombre:'Kotosh',ciudad:'Huanuco',desc:'Templo de las Manos Cruzadas, más de 4000 años.',dato:'💰 S/ 5 | ⏰ 9am - 5pm',foto:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',emoji:'🏔️'},
+  {nombre:'Puente Calicanto',ciudad:'Huanuco',desc:'Puente histórico de piedra y cal.',dato:'💰 Gratis',foto:'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800',emoji:'🌉'},
+  {nombre:'Catedral de Huánuco',ciudad:'Huanuco',desc:'Iglesia principal de Huánuco.',dato:'💰 Gratis',foto:'https://images.unsplash.com/photo-1548407260-da850faa41e3?w=800',emoji:'⛪'},
+  {nombre:'La Perricholi',ciudad:'Huanuco',desc:'Mirador con la mejor vista de Huánuco.',dato:'💰 Gratis',foto:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',emoji:'🌅'},
+  {nombre:'Cueva de las Lechuzas',ciudad:'Tingo',desc:'Cueva famosa en Tingo María.',dato:'💰 S/ 10 | ⏰ 8am - 5pm',foto:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800',emoji:'🦉'},
+  {nombre:'Parque Nacional Tingo María',ciudad:'Tingo',desc:'Selva, ríos y naturaleza.',dato:'💰 S/ 10',foto:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800',emoji:'🌿'},
+  {nombre:'Aguas Sulfurosas',ciudad:'Tingo',desc:'Piscinas naturales de agua caliente.',dato:'💰 S/ 5',foto:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',emoji:'♨️'},
+  {nombre:'Plaza de Amarilis',ciudad:'Amarilis',desc:'Plaza moderna, ferias y comida.',dato:'💰 Gratis',foto:'https://images.unsplash.com/photo-1526392060635-9d6019884377?w=800',emoji:'🎡'},
+  {nombre:'Parque de Pillco Marca',ciudad:'Pillco',desc:'Tranquilo, para pasear y comer.',dato:'💰 Gratis',foto:'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800',emoji:'🌳'},
+];
+let lugarActual=null;
+function mostrarLugares(filtro=''){
+  const cont=document.getElementById('listaLugares'); cont.innerHTML='';
+  lugaresData.filter(l=>l.nombre.toLowerCase().includes(filtro.toLowerCase())).forEach(l=>{
+    cont.innerHTML+=`<div class="card"><img src="${l.foto}"><span class="badge">${l.ciudad} • ${l.emoji}</span><h3>${l.nombre}</h3><p style="font-size:13px;color:#666">${l.desc}</p><p style="font-size:13px;font-weight:700;margin-top:6px">${l.dato}</p><div style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-mor" style="flex:1" onclick="abrirPlus()">⭐ Ser Plus</button><button class="btn btn-bla" style="flex:1" onclick="verMapa('${l.nombre}')">📍 Ver en Google Maps</button></div></div>`;
+  });
+}
+mostrarLugares();
+function buscar(){ mostrarLugares(document.getElementById('buscador').value); }
+function verMapa(lugar){ window.open('https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(lugar+' Huánuco'),'_blank'); }
+function verMapaActual(){ if(lugarActual) verMapa(lugarActual.nombre); }
+function jugar(){
+  const ciudad=document.getElementById('ciudad').value;
+  let lista=ciudad==='Otra'?lugaresData:lugaresData.filter(l=>l.ciudad===ciudad);
+  if(!lista.length) lista=lugaresData;
+  const emojiEl=document.getElementById('emoji'); emojiEl.classList.add('girando');
+  let i=0; const inter=setInterval(()=>{
+    emojiEl.innerText=lista[Math.floor(Math.random()*lista.length)].emoji; i++;
+    if(i>8){ clearInterval(inter); emojiEl.classList.remove('girando');
+      lugarActual=lista[Math.floor(Math.random()*lista.length)];
+      document.getElementById('resultado').classList.remove('oculto');
+      document.getElementById('resNombre').innerText=lugarActual.nombre;
+      document.getElementById('resDesc').innerText=lugarActual.desc;
+      document.getElementById('resDato').innerText=lugarActual.dato;
+      document.getElementById('resFoto').src=lugarActual.foto;
+      document.getElementById('resCiudad').innerText=document.getElementById('ciudad').options[document.getElementById('ciudad').selectedIndex].text;
+      document.getElementById('resultado').scrollIntoView({behavior:'smooth'});
+    }},120);
+}
+function usarUbicacion(){
+  if(!navigator.geolocation){ alert('Activa tu ubicación'); return; }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    document.getElementById('ciudad').value = pos.coords.latitude < -9.2 ? 'Tingo' : 'Huanuco';
+    jugar();
+  },()=>alert('Activa tu ubicación'));
+}
+function abrirPlus(){ document.getElementById('modalPlus').classList.add('activo'); }
+function cerrarPlus(){ document.getElementById('modalPlus').classList.remove('activo'); }
+function cambiarPago(tipo){
+  const esYape = tipo==='yape';
+  document.getElementById('pasosYape').classList.toggle('oculto', !esYape);
+  document.getElementById('pasosBanco').classList.toggle('oculto', esYape);
+  document.getElementById('tabYape').classList.toggle('activo', esYape);
+  document.getElementById('tabBanco').classList.toggle('activo', !esYape);
+}
+function copiar(t){ navigator.clipboard.writeText(t); alert('Copiado: '+t); }
+function verFoto(input){ if(input.files&&input.files[0]){ const r=new FileReader(); r.onload=e=>{ const img=document.getElementById('preview'); img.src=e.target.result; img.style.display='block'; }; r.readAsDataURL(input.files[0]); } }
+function enviarPlus(){
+  const u=document.getElementById('usuarioPlus').value.trim(); const f=document.getElementById('preview').src;
+  if(!u||!f){ alert('Pon tu usuario y sube tu comprobante'); return; }
+  const pagos=JSON.parse(localStorage.getItem('pagos_plus')||'[]'); pagos.push({usuario:u,monto:'3.99',foto:f,fecha:new Date().toLocaleString(),estado:'Pendiente'}); localStorage.setItem('pagos_plus',JSON.stringify(pagos));
+  document.getElementById('okPlus').style.display='block'; setTimeout(()=>{ cerrarPlus(); },2000);
+}
+const sesion=JSON.parse(localStorage.getItem('sesion_usuario')||'null');
+if(sesion){ document.getElementById('saludo').innerText='Hola, '+sesion.user+' 👋'; document.getElementById('usuarioPlus').value=sesion.user; }
+</script>
+</body>
+</html>
